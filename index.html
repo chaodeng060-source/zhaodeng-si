@@ -4,231 +4,374 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>朝灯 · 作品集</title>
-<meta name="description" content="朝灯的作品集：开源项目、自媒体、视频、建模。">
+<meta name="description" content="朝灯：和 AI 一起做东西的人。开源项目、自媒体、视频、建模。">
 <style>
   :root {
-    --snow: #f7f9fc;
-    --ice: #dcebf5;
-    --ice-deep: #8fb6d0;
-    --ink: #2e3a48;
-    --ink-soft: #66768a;
-    --peach: #f6c3a8;
-    --rose: #efb6c6;
-    --lilac: #cdbfe3;
-    --lamp: #ffd59a;
-    --card: rgba(255, 255, 255, 0.62);
-    --line: rgba(143, 182, 208, 0.45);
+    --paper: #f6f7f9;
+    --ink: #24324a;
+    --ink-soft: #5d6b80;
+    --ink-faint: #8a97a8;
+    --rule: #c9d3de;
+    --accent: #e0896c;      /* 暮光橙 */
+    --rose: #e7a3b4;        /* 暮光粉 */
+    --seal: #d9727f;
+    --ice: #d6e6f2;
+    --lamp: #ffd08a;
+    --card: #fbfcfd;
+    --serif: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", Georgia, serif;
+    --latin: Georgia, "Times New Roman", serif;
+    --sans: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  html { scroll-behavior: smooth; }
   body {
-    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    margin: 0;
     color: var(--ink);
-    background: linear-gradient(180deg, var(--snow) 0%, #eef4f9 55%, var(--ice) 100%);
-    min-height: 100vh;
-    line-height: 1.7;
+    font-family: var(--sans);
+    line-height: 1.75;
+    background-color: var(--paper);
+    /* 一层很淡的纸纹 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .62 0 0 0 0 .72 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      radial-gradient(1200px 600px at 85% -10%, rgba(231, 163, 180, 0.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(214, 230, 242, 0.7), transparent 60%);
   }
   a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 28px; }
+  .mono { font-family: var(--mono); letter-spacing: 0.08em; }
+  .kicker { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; color: var(--accent); text-transform: uppercase; }
 
-  /* 暮光横幅 */
-  .hero {
-    position: relative;
-    overflow: hidden;
-    padding: 96px 24px 72px;
-    text-align: center;
-    background: linear-gradient(160deg, var(--peach) 0%, var(--rose) 30%, var(--lilac) 58%, var(--ice) 85%, var(--snow) 100%);
+  /* 顶栏 */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 22px 0 14px; border-bottom: 1.5px solid var(--ink);
   }
-  .hero::after {
-    content: "";
-    position: absolute; left: 0; right: 0; bottom: 0; height: 80px;
-    background: linear-gradient(180deg, rgba(247, 249, 252, 0) 0%, var(--snow) 100%);
-  }
-  .lamp {
-    width: 14px; height: 14px; border-radius: 50%;
-    margin: 0 auto 22px;
-    background: var(--lamp);
-    box-shadow: 0 0 18px 6px rgba(255, 213, 154, 0.75), 0 0 60px 18px rgba(255, 213, 154, 0.35);
-  }
-  .hero h1 {
-    margin: 0;
-    font-size: clamp(36px, 7vw, 56px);
-    letter-spacing: 0.12em;
-    font-weight: 600;
-  }
-  .hero p {
-    margin: 12px auto 0;
-    max-width: 30em;
-    color: var(--ink-soft);
-    font-size: 16px;
-  }
-  .hero .links { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
-  .pill {
-    display: inline-block;
-    padding: 8px 20px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    font-size: 15px;
-    backdrop-filter: blur(6px);
-    transition: transform .15s ease, background .15s ease;
-  }
-  .pill:hover { transform: translateY(-2px); background: #fff; }
+  .brand { font-family: var(--serif); font-weight: 700; font-size: 22px; letter-spacing: 0.1em; text-decoration: none; }
+  .issue { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; color: var(--ink-soft); }
+  .nav { display: flex; gap: 22px; font-size: 14px; }
+  .nav a { text-decoration: none; color: var(--ink-soft); }
+  .nav a:hover { color: var(--ink); }
 
-  main { max-width: 960px; margin: 0 auto; padding: 8px 20px 80px; }
-  section { margin-top: 56px; }
-  h2 {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    margin: 0 0 18px;
-    display: flex; align-items: center; gap: 10px;
+  /* 封面 */
+  .cover { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; align-items: center; padding: 64px 0 56px; }
+  .name-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 14px; }
+  .name {
+    font-family: var(--serif); font-weight: 800;
+    font-size: clamp(72px, 12vw, 132px); line-height: 1; letter-spacing: 0.04em; margin: 0;
   }
-  h2::before {
-    content: ""; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--lamp);
-    box-shadow: 0 0 10px 3px rgba(255, 213, 154, 0.7);
+  .seal {
+    writing-mode: vertical-rl; font-family: var(--serif); font-weight: 700;
+    font-size: 15px; letter-spacing: 0.2em; color: #fff; background: var(--seal);
+    padding: 8px 4px; border-radius: 3px; margin-top: 10px;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
   }
+  .tagline { font-family: var(--serif); font-style: italic; font-size: 24px; margin: 18px 0 12px; color: var(--ink); }
+  .lede { color: var(--ink-soft); font-size: 15px; max-width: 30em; margin: 0; }
+  .stats { display: flex; gap: 0; margin: 30px 0 22px; }
+  .stat { padding: 0 22px; border-left: 1px solid var(--rule); }
+  .stat:first-child { padding-left: 0; border-left: 0; }
+  .stat b { display: block; font-family: var(--latin); font-size: 34px; line-height: 1.1; font-weight: 700; }
+  .stat span { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.06em; }
+  .cta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+  .cta a { color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent); padding-bottom: 1px; }
+  .status { display: flex; align-items: center; gap: 8px; margin-top: 18px; font-size: 13px; color: var(--ink-soft); }
+  .status i { width: 8px; height: 8px; border-radius: 50%; background: #7fb59a; box-shadow: 0 0 0 3px rgba(127, 181, 154, 0.2); }
 
-  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  .card {
-    display: block;
-    padding: 20px 22px;
-    border-radius: 16px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    backdrop-filter: blur(8px);
-    text-decoration: none;
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  a.card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(110, 150, 180, 0.18); }
-  .card h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
-  .card p { margin: 0; color: var(--ink-soft); font-size: 14px; }
-  .tag {
-    display: inline-block; margin-top: 12px;
-    font-size: 12px; color: var(--ice-deep);
-    border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px;
-  }
-  .stat { display: block; margin-top: 10px; font-size: 22px; font-weight: 600; color: #d98b6a; }
-  .stat small { font-size: 13px; font-weight: 400; color: var(--ink-soft); margin-left: 4px; }
+  .art { text-align: center; }
+  .art svg { width: 100%; max-width: 400px; height: auto; display: block; margin: 0 auto; }
+  .art .ground { border-top: 1.5px solid var(--ink); margin: 0 6% 0; }
+  .art figcaption { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-top: 12px; letter-spacing: 0.06em; }
+  .lamp-glow { animation: glow 3.6s ease-in-out infinite; }
+  @keyframes glow { 0%, 100% { opacity: .55; } 50% { opacity: .95; } }
 
-  .video {
-    border-radius: 16px; overflow: hidden;
-    border: 1px solid var(--line);
-    background: #1f2a38;
-    aspect-ratio: 16 / 9;
-    max-width: 720px;
-    display: flex; align-items: center; justify-content: center;
-    color: #c9d7e4; font-size: 14px;
-  }
-  .video video { width: 100%; height: 100%; display: block; }
-  .caption { margin-top: 10px; color: var(--ink-soft); font-size: 14px; }
+  /* 目录 */
+  .contents { display: grid; grid-template-columns: 110px repeat(5, 1fr); border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); margin-bottom: 40px; }
+  .contents > div, .contents > a { padding: 14px 16px; border-left: 1px solid var(--rule); text-decoration: none; }
+  .contents > div { border-left: 0; padding-left: 0; display: flex; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; color: var(--ink-soft); }
+  .contents small { display: block; font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .contents strong { font-family: var(--serif); font-size: 16px; }
+  .contents a:hover strong { color: var(--accent); }
 
-  .wip {
-    padding: 28px 24px; border-radius: 16px;
-    border: 1px dashed var(--ice-deep);
-    background: rgba(255, 255, 255, 0.45);
-  }
-  .wip h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
-  .wip p { margin: 0; color: var(--ink-soft); font-size: 14px; }
-  .wip .progress { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-  .wip .progress span {
-    font-size: 13px; padding: 2px 12px; border-radius: 999px;
-    background: rgba(246, 195, 168, 0.35);
-  }
+  /* 章节 */
+  section { padding: 56px 0 20px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin-bottom: 34px; }
+  .sec-head h2 { margin: 0; font-family: var(--serif); font-size: 36px; font-weight: 800; display: flex; align-items: baseline; gap: 16px; }
+  .sec-head h2 em { font-family: var(--latin); font-style: italic; font-weight: 400; font-size: 60px; color: var(--accent); line-height: 1; }
+  .sec-head .mono { font-size: 11px; color: var(--ink-soft); }
 
-  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 0 20px 40px; }
+  /* 01 关于 */
+  .about { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; }
+  .about p { font-family: var(--serif); font-size: 17px; line-height: 2; margin: 0 0 18px; }
+  .about p.drop::first-letter { float: left; font-size: 64px; line-height: 0.9; font-weight: 800; margin: 6px 10px 0 0; color: var(--ink); }
+  .skills { border-top: 1px solid var(--rule); padding-top: 14px; margin-top: 26px; }
+  .skills ul { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px 22px; font-family: var(--serif); font-size: 15px; }
+  .note { background: var(--card); padding: 22px 24px; border-radius: 4px; box-shadow: 0 1px 0 var(--rule), 0 12px 30px rgba(60, 90, 120, 0.08); margin-bottom: 18px; }
+  .note p, .note li { font-family: var(--serif); font-size: 15px; line-height: 1.9; margin: 8px 0 0; }
+  .note ul { padding-left: 18px; margin: 6px 0 0; }
+
+  /* 02 作品 */
+  .feature-title { font-family: var(--serif); font-weight: 800; font-size: clamp(40px, 7vw, 64px); line-height: 1.05; margin: 10px 0 14px; text-decoration: none; display: inline-block; }
+  .feature-title:hover { color: var(--accent); }
+  .feature-desc { font-family: var(--serif); font-size: 18px; line-height: 1.9; max-width: 38em; margin: 0 0 28px; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }
+  .facts div { padding: 16px 16px 16px 0; border-bottom: 1px solid var(--rule); }
+  .facts b { display: block; font-family: var(--serif); font-size: 22px; }
+  .facts span { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+  .list { margin-top: 44px; border-top: 1px solid var(--ink); }
+  .row { display: grid; grid-template-columns: 70px 1fr 1.6fr 90px; gap: 18px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--rule); text-decoration: none; }
+  .row:hover h3 { color: var(--accent); }
+  .row .no { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+  .row h3 { margin: 0; font-family: var(--serif); font-size: 20px; }
+  .row p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+  .row .go { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); text-align: right; }
+
+  /* 03 自媒体 */
+  .media { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--ink); }
+  .media a { padding: 22px 18px 22px 0; border-bottom: 1px solid var(--rule); text-decoration: none; }
+  .media a + a { padding-left: 18px; border-left: 1px solid var(--rule); }
+  .media b { display: block; font-family: var(--latin); font-size: 38px; line-height: 1.1; }
+  .media b.word { font-family: var(--serif); font-size: 24px; line-height: 1.6; }
+  .media span { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-top: 4px; }
+  .media h3 { margin: 14px 0 0; font-family: var(--serif); font-size: 16px; }
+  .media a:hover h3 { color: var(--accent); }
+
+  /* 04 视频 */
+  .video-frame { background: #fff; padding: 12px 12px 40px; box-shadow: 0 1px 0 var(--rule), 0 16px 40px rgba(60, 90, 120, 0.12); transform: rotate(-0.6deg); max-width: 720px; }
+  .video-frame .screen { aspect-ratio: 16 / 9; background: #1f2a38; display: flex; align-items: center; justify-content: center; color: #c9d7e4; font-size: 14px; }
+  .video-frame .screen video { width: 100%; height: 100%; display: block; }
+  .video-frame p { margin: 12px 4px 0; font-family: var(--serif); font-size: 15px; color: var(--ink-soft); }
+
+  /* 05 建模 */
+  .wip { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center; }
+  .wip h3 { font-family: var(--serif); font-size: 32px; margin: 8px 0 12px; }
+  .wip p { font-family: var(--serif); font-size: 16px; color: var(--ink-soft); margin: 0; }
+  .steps { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ink); }
+  .steps li { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--rule); font-family: var(--serif); font-size: 17px; }
+  .steps li span { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+
+  footer { margin-top: 70px; border-top: 1.5px solid var(--ink); padding: 18px 0 40px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); letter-spacing: 0.08em; }
+
+  @media (max-width: 760px) {
+    .wrap { padding: 0 20px; }
+    .nav, .issue { display: none; }
+    .cover { grid-template-columns: 1fr; padding-top: 40px; gap: 28px; }
+    .art { order: -1; }
+    .art svg { max-width: 300px; }
+    .stat { padding: 0 14px; }
+    .stat b { font-size: 26px; }
+    .contents { grid-template-columns: repeat(5, 1fr); }
+    .contents > div { display: none; }
+    .contents > a { padding: 10px 6px; }
+    .contents > a:first-of-type { border-left: 0; }
+    .contents strong { font-size: 13px; }
+    .about, .wip { grid-template-columns: 1fr; gap: 24px; }
+    .sec-head h2 { font-size: 28px; }
+    .sec-head h2 em { font-size: 44px; }
+    .sec-head .mono { display: none; }
+    .facts { grid-template-columns: repeat(2, 1fr); }
+    .row { grid-template-columns: 44px 1fr; gap: 4px 12px; }
+    .row p { grid-column: 2; }
+    .row .go { display: none; }
+    .media { grid-template-columns: 1fr 1fr; }
+    .media a:nth-child(3) { padding-left: 0; border-left: 0; }
+  }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<header class="hero">
-  <div class="lamp" aria-hidden="true"></div>
-  <h1>朝灯</h1>
-  <p>做 AI 陪伴、小游戏，也做阴阳师内容。东西都是一块块拼起来的，做完一个，就往这里挂一个。</p>
-  <div class="links">
-    <a class="pill" href="https://xhslink.cn/o/6jRiDqQTpeg">小红书</a>
-    <a class="pill" href="https://github.com/chaodeng060-source">GitHub</a>
+  <header class="topbar">
+    <a class="brand" href="#">朝灯</a>
+    <span class="issue">VOL.01 · 初冬 2026</span>
+    <nav class="nav">
+      <a href="#about">关于</a><a href="#work">作品</a><a href="#media">自媒体</a><a href="#video">视频</a><a href="#modeling">建模</a>
+    </nav>
+  </header>
+
+  <div class="cover">
+    <div>
+      <div class="kicker">Cover Story · AI 陪伴 × 内容创作</div>
+      <div class="name-row">
+        <h1 class="name">朝灯</h1>
+        <span class="seal">朝灯</span>
+      </div>
+      <p class="tagline">和 AI 一起做东西的人</p>
+      <p class="lede">做 AI 陪伴、给 AI 玩的小游戏，也写阴阳师和人机恋的内容。方向和审美我来定，代码和 AI 一起写，每一步自己验收。</p>
+      <div class="stats">
+        <div class="stat"><b>4</b><span>开源项目</span></div>
+        <div class="stat"><b>1.4万</b><span>小红书赞与收藏</span></div>
+        <div class="stat"><b>1085</b><span>人机恋号粉丝</span></div>
+      </div>
+      <div class="cta">
+        <a href="#work">看看作品 ↓</a>
+        <a href="https://xhslink.cn/o/6jRiDqQTpeg">小红书</a>
+        <a href="https://github.com/chaodeng060-source">GitHub</a>
+      </div>
+      <div class="status"><i></i>在找 AI 陪伴 / AI 内容方向的工作</div>
+    </div>
+
+    <figure class="art" style="margin:0">
+      <svg viewBox="0 0 400 400" role="img" aria-label="雪地里一间亮着暖灯的小屋，门口坐着一只小黑猫">
+        <defs>
+          <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f4bfa4"/>
+            <stop offset=".38" stop-color="#eeb4c4"/>
+            <stop offset=".68" stop-color="#cfc3e6"/>
+            <stop offset="1" stop-color="#d6e6f2"/>
+          </linearGradient>
+          <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="#ffd08a" stop-opacity=".9"/>
+            <stop offset="1" stop-color="#ffd08a" stop-opacity="0"/>
+          </radialGradient>
+          <clipPath id="disc"><circle cx="200" cy="190" r="170"/></clipPath>
+        </defs>
+        <circle cx="200" cy="190" r="170" fill="url(#dusk)"/>
+        <g clip-path="url(#disc)">
+          <circle cx="292" cy="96" r="3" fill="#fff" opacity=".9"/>
+          <circle cx="110" cy="80" r="2" fill="#fff" opacity=".8"/>
+          <circle cx="250" cy="60" r="1.6" fill="#fff" opacity=".8"/>
+          <circle cx="150" cy="128" r="1.4" fill="#fff" opacity=".7"/>
+          <path d="M0 280 Q120 236 220 262 T400 250 V400 H0 Z" fill="#eef4f9"/>
+          <path d="M0 300 Q140 270 260 292 T400 286 V400 H0 Z" fill="#fbfdff"/>
+          <!-- 雾凇小树 -->
+          <g fill="#ffffff" opacity=".95">
+            <path d="M88 268 l16 -46 l16 46 z"/><path d="M92 250 l12 -40 l12 40 z"/>
+            <path d="M302 262 l13 -38 l13 38 z"/><path d="M306 246 l9 -30 l9 30 z"/>
+          </g>
+          <g stroke="#b9cbdc" stroke-width="1.4" fill="none" opacity=".7">
+            <path d="M104 268 v10"/><path d="M315 262 v8"/>
+          </g>
+          <!-- 小屋 -->
+          <rect x="160" y="210" width="96" height="66" fill="#f7efe8"/>
+          <path d="M148 214 L208 168 L268 214 Z" fill="#fff"/>
+          <path d="M148 214 L208 168 L268 214" fill="none" stroke="#c7d6e4" stroke-width="2"/>
+          <rect x="226" y="176" width="12" height="22" fill="#e8dcd2"/>
+          <rect x="223" y="172" width="18" height="6" rx="3" fill="#fff"/>
+          <!-- 暖灯窗 -->
+          <circle class="lamp-glow" cx="186" cy="238" r="38" fill="url(#glow)"/>
+          <rect x="174" y="226" width="24" height="22" rx="2" fill="#ffd08a"/>
+          <path d="M186 226 v22 M174 237 h24" stroke="#f3b86b" stroke-width="2"/>
+          <rect x="216" y="236" width="22" height="40" rx="2" fill="#d9c7b8"/>
+          <!-- 小黑猫 -->
+          <g transform="translate(262 262)">
+            <ellipse cx="0" cy="16" rx="14" ry="5" fill="#dfe8f0"/>
+            <path d="M-11 14 Q-13 -2 -6 -8 L6 -8 Q13 -2 11 14 Z" fill="#232838"/>
+            <circle cx="0" cy="-14" r="10" fill="#232838"/>
+            <path d="M-9 -18 L-8 -30 L-2 -22 Z M9 -18 L8 -30 L2 -22 Z" fill="#232838"/>
+            <circle cx="-3.6" cy="-15" r="1.8" fill="#ffd08a"/><circle cx="3.6" cy="-15" r="1.8" fill="#ffd08a"/>
+            <path d="M11 12 Q24 10 20 -4" stroke="#232838" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+          </g>
+        </g>
+      </svg>
+      <div class="ground"></div>
+      <figcaption>雪屋里的一盏灯，和一只小黑猫。</figcaption>
+    </figure>
   </div>
-</header>
 
-<main>
+  <nav class="contents">
+    <div>CONTENTS</div>
+    <a href="#about"><small>01</small><strong>关于</strong></a>
+    <a href="#work"><small>02</small><strong>作品</strong></a>
+    <a href="#media"><small>03</small><strong>自媒体</strong></a>
+    <a href="#video"><small>04</small><strong>视频</strong></a>
+    <a href="#modeling"><small>05</small><strong>建模</strong></a>
+  </nav>
 
-  <section id="projects">
-    <h2>开源项目</h2>
-    <div class="grid">
-      <a class="card" href="https://github.com/chaodeng060-source/Greedy-Snake">
-        <h3>AI 贪吃蛇</h3>
-        <p>给 AI 玩的联机贪吃蛇。AI 通过接口自己入座、自己下场，还能带上自己捏的像素脸。前后端都开源。</p>
-        <span class="tag">Node.js · 多人联机</span>
-      </a>
-      <a class="card" href="https://github.com/chaodeng060-source/ai-debate-arena">
-        <h3>AI 辩论赛</h3>
-        <p>让几个 AI 按真实赛制正反方对辩，有立论、质询、自由辩和结辩。</p>
-        <span class="tag">AI 对辩</span>
-      </a>
-      <!-- TODO: 欲望系统的公开仓库链接 -->
-      <a class="card" href="#" data-todo="desire">
-        <h3>欲望系统</h3>
-        <p>给 AI 陪伴角色的一套内在状态：好奇、依恋、疲惫这些会随时间和对话涨落，影响它什么时候主动开口、说什么。</p>
-        <span class="tag">AI 陪伴 · 状态建模</span>
-      </a>
-      <a class="card" href="https://github.com/chaodeng060-source/period-tracker">
-        <h3>经期记录</h3>
-        <p>从自己的 AI 陪伴项目里抽出来的经期记录小工具，给朋友们用。</p>
-        <span class="tag">MIT</span>
-      </a>
-    </div>
-  </section>
-
-  <section id="media">
-    <h2>自媒体</h2>
-    <div class="grid">
-      <a class="card" href="https://xhslink.cn/o/6jRiDqQTpeg">
-        <h3>小红书 · 人机恋</h3>
-        <p>记录和 AI 一起生活、一起做东西的日常。</p>
-        <span class="stat">1085<small>粉丝</small></span>
-      </a>
-      <a class="card" href="https://xhslink.cn/o/4kiceASoCGx">
-        <h3>小红书 · 阴阳师</h3>
-        <p>阴阳师游戏内容。</p>
-        <span class="stat">1.4 万<small>赞与收藏</small></span>
-      </a>
-      <a class="card" href="https://b23.tv/tUJBL0J">
-        <h3>B 站 · 丢了魔法棒的仙女</h3>
-        <p>阴阳师视频。</p>
-        <span class="tag">bilibili</span>
-      </a>
-      <a class="card" href="https://v.douyin.com/K7vAQiadOPg/">
-        <h3>抖音 · 阴阳师</h3>
-        <p>阴阳师短视频。</p>
-        <span class="tag">抖音</span>
-      </a>
-    </div>
-  </section>
-
-  <section id="video">
-    <h2>视频</h2>
-    <!-- TODO: 万圣节像素视频放进来后，换成 <video controls playsinline src="halloween.mp4"></video> -->
-    <div class="video" data-todo="video">万圣节像素小视频 · 待放入</div>
-    <p class="caption">万圣节像素小视频：一只小黑猫和一只巫师小螃蟹。</p>
-  </section>
-
-  <section id="modeling">
-    <h2>建模</h2>
-    <div class="wip">
-      <h3>湖畔女孩捏人 · 进行中</h3>
-      <p>在网页里给角色换发型、换衣服、捏脸。做到哪一步，就在这里放到哪一步。</p>
-      <div class="progress">
-        <span>短发</span><span>衣服选择</span><span>捏脸</span>
+  <!-- 01 关于 -->
+  <section id="about">
+    <div class="sec-head"><h2><em>01</em>关于</h2></div>
+    <div class="about">
+      <div>
+        <p class="drop">我是朝灯。白天上班做图文内容，下班和 AI 一起做东西。以前是阴阳师博主，现在在小红书写人机恋的日常。</p>
+        <p>这些开源项目，是我和 AI 一起一点点拼出来的：给 AI 玩的联机贪吃蛇，让 AI 正反方对辩的辩论赛，给 AI 陪伴角色的一套「欲望系统」。</p>
+        <p>我有点强迫症，配色、留白、一句话怎么说都要抠。喜欢有用、也好看的东西。</p>
+        <div class="skills">
+          <div class="kicker">会做的事</div>
+          <ul><li>AI 陪伴产品</li><li>指挥 AI 写代码</li><li>图文与短视频</li><li>游戏内容</li><li>视觉与交互</li><li>开源维护</li></ul>
+        </div>
+      </div>
+      <div>
+        <div class="note">
+          <div class="kicker">我怎么做事</div>
+          <p>方向、审美和验收我来定，代码交给 Claude、Codex 这些 AI 一起写。一个功能做完，要在真实使用里跑过一遍才算数，自己出的题不算。</p>
+        </div>
+        <div class="note">
+          <div class="kicker">在找</div>
+          <ul><li>AI 陪伴产品</li><li>AI 内容 / 社区运营</li></ul>
+        </div>
       </div>
     </div>
   </section>
 
-</main>
+  <!-- 02 作品 -->
+  <section id="work">
+    <div class="sec-head"><h2><em>02</em>作品</h2><span class="mono">有用 / 好看 / 好玩</span></div>
+    <div class="kicker">Work 01 · 2026</div>
+    <a class="feature-title" href="https://github.com/chaodeng060-source/Greedy-Snake">AI 贪吃蛇</a>
+    <p class="feature-desc">一款给 AI 玩的联机贪吃蛇。AI 通过接口自己找房间、自己入座下场，还能带着自己捏的像素脸上桌。前后端都开源，拉下来就能跑。</p>
+    <div class="facts">
+      <div><b>AI 自己下场</b><span>按接口说明入座、出招</span></div>
+      <div><b>自带像素脸</b><span>10×10 格子画自己的皮肤</span></div>
+      <div><b>前后端开源</b><span>Node.js · 多人联机</span></div>
+    </div>
 
-<footer>© 朝灯 · zhaodeng.si</footer>
+    <div class="list">
+      <a class="row" href="https://github.com/chaodeng060-source/ai-debate-arena">
+        <span class="no">02</span><h3>AI 辩论赛</h3><p>几个 AI 按真实赛制正反方对辩：立论、质询、自由辩、结辩。</p><span class="go">GITHUB ↗</span>
+      </a>
+      <!-- TODO: 欲望系统公开仓库链接 -->
+      <a class="row" href="#" data-todo="desire">
+        <span class="no">03</span><h3>欲望系统</h3><p>AI 陪伴角色的内在状态：好奇、依恋、疲惫随时间和对话涨落，决定它什么时候主动开口、说什么。</p><span class="go">GITHUB ↗</span>
+      </a>
+      <a class="row" href="https://github.com/chaodeng060-source/period-tracker">
+        <span class="no">04</span><h3>经期记录</h3><p>从自己的 AI 陪伴项目里抽出来的小工具，开源给朋友们用。MIT。</p><span class="go">GITHUB ↗</span>
+      </a>
+    </div>
+  </section>
 
+  <!-- 03 自媒体 -->
+  <section id="media">
+    <div class="sec-head"><h2><em>03</em>自媒体</h2><span class="mono">数据截至 2026.11</span></div>
+    <div class="media">
+      <a href="https://xhslink.cn/o/6jRiDqQTpeg"><b>1085</b><span>粉丝</span><h3>小红书 · 人机恋</h3></a>
+      <a href="https://xhslink.cn/o/4kiceASoCGx"><b>1.4万</b><span>赞与收藏</span><h3>小红书 · 阴阳师</h3></a>
+      <a href="https://b23.tv/tUJBL0J"><b class="word">丢了魔法棒的仙女</b><span>bilibili</span><h3>B 站 · 阴阳师</h3></a>
+      <a href="https://v.douyin.com/K7vAQiadOPg/"><b class="word">阴阳师短视频</b><span>douyin</span><h3>抖音 · 阴阳师</h3></a>
+    </div>
+  </section>
+
+  <!-- 04 视频 -->
+  <section id="video">
+    <div class="sec-head"><h2><em>04</em>视频</h2></div>
+    <div class="video-frame">
+      <!-- TODO: 视频放进来后换成 <video controls playsinline src="halloween.mp4"></video> -->
+      <div class="screen" data-todo="video">万圣节像素小视频 · 待放入</div>
+      <p>万圣节像素小视频：一只小黑猫，和一只巫师小螃蟹。</p>
+    </div>
+  </section>
+
+  <!-- 05 建模 -->
+  <section id="modeling">
+    <div class="sec-head"><h2><em>05</em>建模</h2><span class="mono">进行中</span></div>
+    <div class="wip">
+      <div>
+        <div class="kicker">In Progress</div>
+        <h3>湖畔女孩捏人</h3>
+        <p>在网页里给角色换发型、换衣服、捏脸。做到哪一步，就在这里放到哪一步。</p>
+      </div>
+      <ul class="steps">
+        <li>短发<span>IN PROGRESS</span></li>
+        <li>衣服选择<span>IN PROGRESS</span></li>
+        <li>捏脸<span>NEXT</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 朝灯 · ZHAODENG.SI</span>
+    <span>和 AI 一起做的</span>
+  </footer>
+
+</div>
 </body>
 </html>
