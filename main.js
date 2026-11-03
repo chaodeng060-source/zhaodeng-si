@@ -52,10 +52,12 @@
       ],
     },
     video: {
-      kicker: "视频",
-      title: "万圣节像素小视频",
-      body: ["一只小黑猫，和一只巫师小螃蟹。", "片子正在整理，很快放上来。"],
-      tags: ["像素", "动画"],
+      kicker: "视频 · 39 秒",
+      title: "Happy Halloween",
+      cover: ["assets/halloween-cover.jpg", "像素画定格：月亮下面写着 HAPPY HALLOWEEN 朝灯，小黑猫和巫师小螃蟹站在一排南瓜灯前"],
+      body: ["一只小黑猫和一只巫师小螃蟹，踩着《Happy Halloween》过万圣夜。", "动作卡在人声的重音上：「ヤッホー」的「ホー」一响，蝙蝠正好砸上镜头。少切镜，用推拉摇把四个长镜头连起来。"],
+      tags: ["像素动画", "卡点"],
+      links: [["去小红书看片", "https://xhslink.cn/o/9WzxgYG1OBW"]],
     },
     model: {
       kicker: "建模 · 进行中",
@@ -518,6 +520,11 @@
     $("#cardKicker").textContent = it.kicker || "";
     $("#cardTitle").textContent = it.title;
     const body = $("#cardBody"); body.replaceChildren();
+    if (it.cover) {
+      const a = el("a", "cover"); a.href = (it.links || [[, "#"]])[0][1]; a.target = "_blank"; a.rel = "noopener";
+      const im = el("img"); im.src = it.cover[0]; im.alt = it.cover[1]; im.loading = "lazy";
+      a.append(im, el("span", null, "▶")); body.appendChild(a);
+    }
     (it.body || []).forEach((p) => body.appendChild(el("p", null, p)));
     if (it.accounts) {
       const box = el("div", "accounts");
