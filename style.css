@@ -201,13 +201,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background: rgba(253, 249, 243, .88); color: #3f3448; font-size: 20px; transition: transform .2s ease;
 }
 .card .cover:hover span { transform: scale(1.08); }
-.card figure.cover { margin: 4px auto 16px; }
-.card figure.cover.wide { width: 100%; }
-.card figure.cover.wide img { image-rendering: auto; }
-.card .shot { margin: 4px 0 14px; }
-.card .shot img { display: block; width: 100%; border-radius: 4px; box-shadow: 0 6px 16px rgba(30, 30, 60, .2); }
-.card .shot figcaption { margin-top: 6px; font-size: 12px; letter-spacing: .1em; color: var(--ink-soft); text-align: center; }
-.card .aside { font-size: 13px; color: var(--ink-soft); }
 .card .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .card .tags span { font-size: 12px; padding: 1px 10px; border-radius: 999px; background: #eef3f8; color: #6f8aa3; }
 .card .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
