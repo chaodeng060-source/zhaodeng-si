@@ -51,6 +51,19 @@
         ["抖音 · 阴阳师", "短视频", "https://v.douyin.com/K7vAQiadOPg/"],
       ],
     },
+    forest: {
+      kicker: "AI 陪伴 · 记忆可视化",
+      title: "记忆森林",
+      cover: ["assets/forest-map.jpg", "水彩风的全景地图：远处雪山，中间一片湖，左边森林小路，湖边一座石屋", { wide: true }],
+      body: [
+        "给 AI 的记忆做了一个能逛的世界：远山、湖、森林深处、湖边的小屋。",
+        "每一天的记忆是画上的一颗光晕，点开能看那天的心情。森林深处的树按真实记忆的日期种下。冬天现在一棵都没有，因为还没一起过过冬天，留着等它自己长出来。",
+        "白天、黄昏、晚上跟着看的人那边的真实时间走，春夏秋冬四季轮换，换时段的时候两幅画慢慢过渡。",
+      ],
+      gallery: [["assets/forest-phases.jpg", "同一个湖边的冬天：白天、黄昏、晚上三幅", "同一个湖边，白天 · 黄昏 · 晚上"]],
+      after: "里面装的是真实的记忆，所以这里只放全景，不对外开放。",
+      tags: ["React", "AI 记忆", "四季 × 昼夜"],
+    },
     video: {
       kicker: "视频 · 39 秒",
       title: "Happy Halloween",
@@ -76,7 +89,7 @@
       links: [["GitHub", "https://github.com/chaodeng060-source"], ["小红书", "https://xhslink.cn/o/6jRiDqQTpeg"]],
     },
   };
-  const ORDER = ["about", "cat", "desire", "period", "debate", "snake", "media", "video", "model"];
+  const ORDER = ["about", "cat", "forest", "desire", "period", "debate", "snake", "media", "video", "model"];
 
   const $ = (s) => document.querySelector(s);
   const SVGNS = "http://www.w3.org/2000/svg";
@@ -521,11 +534,22 @@
     $("#cardTitle").textContent = it.title;
     const body = $("#cardBody"); body.replaceChildren();
     if (it.cover) {
-      const a = el("a", "cover"); a.href = (it.links || [[, "#"]])[0][1]; a.target = "_blank"; a.rel = "noopener";
-      const im = el("img"); im.src = it.cover[0]; im.alt = it.cover[1]; im.loading = "lazy";
-      a.append(im, el("span", null, "▶")); body.appendChild(a);
+      const [src, alt, opt = {}] = it.cover;
+      const im = el("img"); im.src = src; im.alt = alt; im.loading = "lazy";
+      if (it.links) { // 有链接的封面（视频）点了就去看片
+        const a = el("a", "cover"); a.href = it.links[0][1]; a.target = "_blank"; a.rel = "noopener";
+        a.append(im, el("span", null, "▶")); body.appendChild(a);
+      } else {
+        const f = el("figure", "cover" + (opt.wide ? " wide" : "")); f.appendChild(im); body.appendChild(f);
+      }
     }
     (it.body || []).forEach((p) => body.appendChild(el("p", null, p)));
+    (it.gallery || []).forEach(([src, alt, cap]) => {
+      const f = el("figure", "shot"), im = el("img");
+      im.src = src; im.alt = alt; im.loading = "lazy";
+      f.append(im, el("figcaption", null, cap)); body.appendChild(f);
+    });
+    if (it.after) body.appendChild(el("p", "aside", it.after));
     if (it.accounts) {
       const box = el("div", "accounts");
       it.accounts.forEach(([name, stat, href]) => {
