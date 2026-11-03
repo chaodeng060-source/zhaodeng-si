@@ -22,9 +22,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   background:
     linear-gradient(140deg, rgba(246, 186, 156, .55) 0%, rgba(236, 168, 190, .32) 30%, rgba(205, 195, 232, .18) 55%, rgba(214, 230, 242, 0) 80%),
-    radial-gradient(120% 90% at 50% 45%, rgba(255, 255, 255, 0) 55%, rgba(60, 80, 110, .22) 100%),
-    repeating-linear-gradient(180deg, #e3ebf2 0 54px, #d2dde7 54px 56px, #e0e9f0 56px 110px, #cfdbe5 110px 112px);
+    radial-gradient(120% 90% at 50% 45%, rgba(255, 255, 255, 0) 55%, rgba(60, 80, 110, .26) 100%),
+    url("assets/planks.jpg") 0 0 / 300px 300px repeat #e3ebf2;
 }
+.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 .topline {
   position: absolute; top: 0; left: 0; right: 0; z-index: 6;
@@ -55,22 +56,72 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   aspect-ratio: 4 / 3;
   margin-top: 76px;
 }
+/* 窗里透出来的暖光，擦得越开，洒到外墙上的越多 */
+.window::before {
+  content: ""; position: absolute; inset: -30% -25% -40%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 196, 140, .42), rgba(255, 196, 140, .12) 60%, rgba(255, 196, 140, 0));
+}
+.spill {
+  position: absolute; left: -30%; right: -30%; top: 70%; height: 80%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 190, 120, .55), rgba(255, 190, 120, 0));
+  opacity: var(--spill, 0); transition: opacity .6s ease;
+}
 .glass {
   position: absolute; inset: 0;
   overflow: hidden; border-radius: 2px;
-  background: #e8cfb6;
+  background: #4a3440;
+  isolation: isolate;
   touch-action: none; cursor: crosshair;
 }
-.room { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.room .item { transition: filter .25s ease; }
-.room .item.lit { filter: drop-shadow(0 0 6px rgba(255, 220, 160, .95)) brightness(1.06); }
-.poster-glyph { font-family: var(--serif); font-size: 92px; font-weight: 800; fill: #c8706a; }
-.poster-title { font-family: var(--serif); font-size: 18px; font-weight: 700; fill: #5a4a40; letter-spacing: 2px; }
-.cal-title { font-family: var(--serif); font-size: 15px; fill: #fff; letter-spacing: 3px; }
-.tiny { font-family: var(--serif); font-size: 13px; fill: #8c7a8a; letter-spacing: 2px; }
-.note-title { font-family: var(--hand); font-size: 15px; fill: #fff4ee; letter-spacing: 3px; }
+/* 屋里分五层，各走各的视差，只挪图层不重画 */
+.layer {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  overflow: visible; pointer-events: none; will-change: transform;
+}
+.layer .item { pointer-events: visiblePainted; transition: filter .25s ease; }
+.layer .item.lit { filter: drop-shadow(0 0 7px rgba(255, 222, 160, .95)) brightness(1.08); }
+.layer .mul { mix-blend-mode: multiply; }
+.lamp-light { mix-blend-mode: screen; pointer-events: none; }
+.light { position: absolute; inset: -60px; pointer-events: none; will-change: transform; }
+.light.shade { mix-blend-mode: multiply; }
+.light.glow { mix-blend-mode: screen; }
+
+.poster-glyph { font-family: var(--serif); font-size: 96px; font-weight: 800; fill: #3f3448; opacity: .86; }
+.poster-side { font-family: var(--serif); font-size: 10px; fill: #5a4a52; letter-spacing: 2px; }
+.poster-title { font-family: var(--serif); font-size: 18px; font-weight: 700; fill: #4a3c40; letter-spacing: 3px; }
+.poster-sub { font-family: var(--serif); font-size: 8.5px; fill: #8a7a76; letter-spacing: 1.5px; }
+.polaroid-label { font-family: var(--hand); font-size: 9px; fill: #8a7a76; letter-spacing: 1px; }
+.cal-title { font-family: var(--serif); font-size: 15px; fill: #fff; letter-spacing: 4px; }
+.cal-week { font-family: var(--sans); font-size: 7.5px; fill: #b49c90; }
+.cal-day { font-family: var(--sans); font-size: 8.5px; fill: #6d5f62; }
+.cal-day.off { fill: #c9b4ae; }
+.tiny { font-family: var(--serif); font-size: 10px; fill: #8c7a8a; letter-spacing: 2px; }
+.note-title { font-family: var(--hand); font-size: 15px; fill: #fbe2c4; letter-spacing: 3px; }
+
+/* 串灯一闪一闪，电视的光轻轻抖 */
+.fairy-glow { animation: twinkle 3.2s ease-in-out infinite; }
+@keyframes twinkle { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.tv-glow { animation: flicker 2.6s steps(1) infinite; mix-blend-mode: screen; }
+@keyframes flicker { 0% { opacity: .8; } 12% { opacity: .6; } 20% { opacity: .9; } 55% { opacity: .7; } 70% { opacity: 1; } 85% { opacity: .65; } }
+
+/* 杯子冒热气 */
+.steam path { opacity: 0; animation: steam 4.4s ease-out infinite; }
+.steam path:nth-child(2) { animation-delay: 2.2s; }
+@keyframes steam {
+  0% { opacity: 0; transform: translateY(8px); }
+  25% { opacity: .55; }
+  100% { opacity: 0; transform: translateY(-26px); }
+}
+
+/* 小黑猫：眨眼、甩尾巴尖、耳朵偶尔抖一下 */
 #catBody { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .45s cubic-bezier(.3, 1.4, .5, 1); }
 .cat.duck #catBody { transform: translateY(40px) scaleY(.35); }
+.cat .eyes { transform-box: fill-box; transform-origin: 50% 50%; animation: blink 5.2s infinite; }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 95.5% { transform: scaleY(.08); } }
+.cat .tail-tip { transform-box: fill-box; transform-origin: 100% 60%; animation: tailTip 3.6s ease-in-out infinite; }
+@keyframes tailTip { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(-16deg); } 60% { transform: rotate(6deg); } }
+.cat .ear-r { transform-box: fill-box; transform-origin: 20% 90%; animation: ear 7.5s ease-in-out infinite; }
+@keyframes ear { 0%, 88%, 100% { transform: rotate(0); } 90% { transform: rotate(12deg); } 92% { transform: rotate(-3deg); } 94% { transform: rotate(0); } }
 
 #frost { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .sheen {
@@ -99,8 +150,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   position: relative; z-index: 2; margin-top: 70px;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   padding: 10px 26px 9px; border-radius: 4px;
-  background: linear-gradient(180deg, #8b6f5c, #75594a);
-  color: #fbeee2; box-shadow: 0 8px 18px rgba(60, 50, 40, .3), inset 0 1px 0 rgba(255, 255, 255, .2);
+  background: linear-gradient(180deg, rgba(120, 80, 56, .55), rgba(70, 42, 30, .72)), url("assets/wood.jpg") center / 360px 90px;
+  color: #fbeee2; text-shadow: 0 1px 0 rgba(40, 20, 10, .5); box-shadow: 0 8px 18px rgba(60, 50, 40, .3), inset 0 1px 0 rgba(255, 255, 255, .2);
 }
 .plaque b { font-family: var(--serif); font-size: 20px; letter-spacing: .5em; text-indent: .5em; }
 .plaque span { font-size: 11px; letter-spacing: .3em; opacity: .85; }
@@ -169,7 +220,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .window { width: min(84vw, calc(56vh * 3 / 4)); aspect-ratio: 3 / 4; margin-top: 84px; }
   .frame { inset: -12px; border-width: 12px; }
   .frame .mv { left: calc(50% - 4px); width: 8px; }
-  .frame .mh { top: calc(40% - 4px); height: 8px; }
+  .frame .mh { top: calc(46.5% - 4px); height: 8px; }
   .sill { left: -28px; right: -28px; width: calc(100% + 56px); bottom: -54px; height: 42px; }
   .plaque { margin-top: 58px; }
   .lantern { top: 96px; height: 40px; right: 6vw; }
@@ -178,5 +229,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .hint { font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lantern i { animation: none; }
+  .lantern i, .fairy-glow, .tv-glow, .steam path, .cat .eyes, .cat .tail-tip, .cat .ear-r { animation: none; }
+  .steam path { opacity: .3; }
 }

@@ -77,37 +77,112 @@
   const ORDER = ["about", "cat", "desire", "period", "debate", "snake", "media", "video", "model"];
 
   const $ = (s) => document.querySelector(s);
-  const glass = $("#glass"), room = $("#room"), frost = $("#frost"), hint = $("#hint");
-  const L = [$("#L0"), $("#L1"), $("#L2")];
-  const DEPTH = [6, 14, 26];
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const glass = $("#glass"), frost = $("#frost"), hint = $("#hint"), scene = $("#scene");
+  const shade = $("#shade"), glow = $("#glow");
+  // 每层多深：越近，手一动挪得越多
+  const LAYERS = [["#L0", 6], ["#L1", 14], ["#L1fx", 14], ["#L2", 26], ["#L2fx", 26], ["#shade", 26], ["#glow", 26]]
+    .map(([s, d]) => ({ el: $(s), d, x: 0, y: 0 }));
+  const SVGS = [...document.querySelectorAll(".layer")];
+  const LAMP = { x: 300, y: 540 };   // 灯泡在屋里的位置
   const fctx = frost.getContext("2d");
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
   // ---------- 让屋里的画面始终露出完整的那一块（x 150–1050，y 100–760）----------
+  const vb = { x: 150, y: 100, w: 900, h: 660, k: 1 };
   function fitRoom() {
     const r = glass.getBoundingClientRect();
     const a = r.width / r.height;
     const cw = 900, ch = 660;
     let w, h;
     if (a >= cw / ch) { h = ch; w = ch * a; } else { w = cw; h = cw / a; }
-    const x = 600 - w / 2, y = 430 - h / 2;
-    room.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
+    Object.assign(vb, { x: 600 - w / 2, y: 430 - h / 2, w, h, k: r.width / w });
+    SVGS.forEach((s) => s.setAttribute("viewBox", `${vb.x} ${vb.y} ${w} ${h}`));
+  }
+  // 屋里的坐标 ↔ 窗玻璃上的像素
+  const toPx = (x, y) => ({ x: (x - vb.x) * vb.k, y: (y - vb.y) * vb.k });
+  const fromPx = (x, y) => ({ x: vb.x + x / vb.k, y: vb.y + y / vb.k });
+
+  // ---------- 台灯的明暗：远处压成暮色，灯边上暖起来 ----------
+  function placeLight() {
+    const r = glass.getBoundingClientRect();
+    const p = toPx(LAMP.x, LAMP.y), pad = 60;
+    const lx = p.x + pad, ly = p.y + pad;
+    const R = Math.hypot(Math.max(lx, r.width + pad - lx), Math.max(ly, r.height + pad - ly));
+    shade.style.background = `radial-gradient(circle at ${lx}px ${ly}px, rgba(255,255,255,0) 0, rgba(255,255,255,0) ${R * 0.1}px, rgba(176,128,150,.42) ${R * 0.48}px, rgba(66,50,96,.74) ${R * 0.95}px)`;
+    const g = 420 * vb.k;
+    glow.style.background = `radial-gradient(circle at ${lx}px ${ly}px, rgba(255,226,170,.5) 0, rgba(255,200,130,.22) ${g * 0.35}px, rgba(255,190,120,0) ${g}px)`;
+  }
+
+  // ---------- 串灯：沿着挂拍立得的那根绳 ----------
+  function buildFairyLights() {
+    const g = $("#fairy");
+    const P0 = [360, 108], P1 = [552, 180], P2 = [746, 108];
+    for (let i = 0; i < 15; i++) {
+      const t = 0.03 + i * (0.94 / 14), u = 1 - t;
+      const x = u * u * P0[0] + 2 * u * t * P1[0] + t * t * P2[0];
+      const y = u * u * P0[1] + 2 * u * t * P1[1] + t * t * P2[1] + 5;
+      const halo = document.createElementNS(SVGNS, "circle");
+      halo.setAttribute("cx", x); halo.setAttribute("cy", y); halo.setAttribute("r", 15);
+      halo.setAttribute("fill", "url(#bulbGlow)"); halo.setAttribute("class", "fairy-glow");
+      halo.style.animationDelay = `${(-Math.random() * 3.2).toFixed(2)}s`;
+      const dot = document.createElementNS(SVGNS, "ellipse");
+      dot.setAttribute("cx", x); dot.setAttribute("cy", y); dot.setAttribute("rx", 2.2); dot.setAttribute("ry", 3);
+      dot.setAttribute("fill", "#fff6dc");
+      g.append(halo, dot);
+    }
+  }
+
+  // ---------- 日历：就是这个月，今天画个圈 ----------
+  function buildCalendar() {
+    const MONTHS = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+    const now = new Date(), Y = now.getFullYear(), M = now.getMonth(), today = now.getDate();
+    $("#calTitle").textContent = MONTHS[M];
+    const g = $("#calGrid");
+    const text = (x, y, s, cls) => { const t = document.createElementNS(SVGNS, "text"); t.setAttribute("x", x); t.setAttribute("y", y); t.setAttribute("text-anchor", "middle"); t.setAttribute("class", cls); t.textContent = s; g.appendChild(t); return t; };
+    const col = (c) => 477 + c * 19.6;
+    "日一二三四五六".split("").forEach((s, c) => text(col(c), 345, s, "cal-week"));
+    const first = new Date(Y, M, 1).getDay(), days = new Date(Y, M + 1, 0).getDate();
+    for (let d = 1; d <= days; d++) {
+      const i = first + d - 1, c = i % 7, row = Math.floor(i / 7);
+      const y = 361 + row * 17.5;
+      text(col(c), y, d, "cal-day" + (c === 0 || c === 6 ? " off" : ""));
+      if (d === today) {
+        const ring = document.createElementNS(SVGNS, "circle");
+        ring.setAttribute("cx", col(c)); ring.setAttribute("cy", y - 3); ring.setAttribute("r", 7.5);
+        ring.setAttribute("fill", "none"); ring.setAttribute("stroke", "#d9727f"); ring.setAttribute("stroke-width", 1.6);
+        g.appendChild(ring);
+      }
+    }
+  }
+
+  // ---------- 墙上的钟：走的是看的人那边的真实时间 ----------
+  function buildClock() {
+    const C = { x: 470, y: -38 }, g = $("#ticks");
+    for (let i = 0; i < 12; i++) {
+      const a = i / 12 * Math.PI * 2, r0 = i % 3 ? 30 : 27;
+      const l = document.createElementNS(SVGNS, "line");
+      l.setAttribute("x1", C.x + Math.sin(a) * r0); l.setAttribute("y1", C.y - Math.cos(a) * r0);
+      l.setAttribute("x2", C.x + Math.sin(a) * 33); l.setAttribute("y2", C.y - Math.cos(a) * 33);
+      l.setAttribute("stroke-width", i % 3 ? 1.2 : 2.2);
+      g.appendChild(l);
+    }
+    const hour = $("#hourHand"), min = $("#minHand");
+    const tick = () => {
+      const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60, h = (d.getHours() % 12) + m / 60;
+      hour.setAttribute("transform", `rotate(${(h * 30).toFixed(1)} ${C.x} ${C.y})`);
+      min.setAttribute("transform", `rotate(${(m * 6).toFixed(1)} ${C.x} ${C.y})`);
+    };
+    tick(); setInterval(tick, 30000);
   }
 
   // ---------- 霜 ----------
   let W = 0, H = 0, tex = null;
-  const CELL = 8;              // 网格一格多少个 CSS 像素
+  const CELL = 6;              // 网格一格多少个 CSS 像素
   let gw = 0, gh = 0, grid = null, small = null, sctx = null, img = null;
   let dirty = true;
-
-  function svgToGlass(x, y) {
-    const m = room.getScreenCTM();
-    const r = glass.getBoundingClientRect();
-    const p = room.createSVGPoint(); p.x = x; p.y = y;
-    const s = p.matrixTransform(m);
-    return { x: s.x - r.left, y: s.y - r.top };
-  }
+  const svgToGlass = toPx;
 
   function fern(c, x, y, ang, len, depth) {
     if (depth <= 0 || len < 1.5) return;
@@ -171,7 +246,7 @@
     }
 
     // 屋里的灯从霜后面透出来
-    const lamp = svgToGlass(300, 500);
+    const lamp = svgToGlass(LAMP.x, LAMP.y);
     c.globalCompositeOperation = "source-atop";
     const lg = c.createRadialGradient(lamp.x, lamp.y, 0, lamp.x, lamp.y, Math.max(cw, ch) * 0.6);
     lg.addColorStop(0, "rgba(255,190,120,0.42)");
@@ -216,7 +291,7 @@
     for (let i = 0; i < gw * gh; i++) grid[i] = Math.max(grid[i], d[i * 4 + 3] / 255 * 0.9);
   }
 
-  function wipe(x, y, radius) {
+  function wipe(x, y, radius, strength = 1) {
     const r = radius / CELL;
     const cx = x / CELL, cy = y / CELL;
     const x0 = Math.max(0, Math.floor(cx - r)), x1 = Math.min(gw - 1, Math.ceil(cx + r));
@@ -225,7 +300,7 @@
       for (let gx = x0; gx <= x1; gx++) {
         const d = Math.hypot(gx - cx, gy - cy) / r;
         if (d >= 1) continue;
-        const v = 1 - d * d;
+        const v = (1 - d * d) * strength;
         const i = gy * gw + gx;
         if (v > grid[i]) grid[i] = v;
       }
@@ -239,16 +314,57 @@
     return grid[gy * gw + gx];
   }
 
-  let lastT = 0, holdUntil = 0;
+  // ---------- 擦过的地方，化开的水珠往下淌，淌过的地方也清出一道 ----------
+  let drops = [];
+  function maybeDrop(x, y, radius) {
+    if (drops.length > 24 || Math.random() > 0.05) return;
+    drops.push({
+      x: x + (Math.random() - 0.5) * radius * 1.3, y: y + radius * 0.75,
+      r: 1.8 + Math.random() * 2.2, v: 0, run: 40 + Math.random() * 180, ran: 0, a: 1,
+    });
+  }
+  function stepDrops(dt) {
+    for (const d of drops) {
+      if (d.ran < d.run) {
+        d.v = Math.min(1.4, d.v + 0.012 * dt / 16);
+        const dy = d.v * dt / 16;
+        d.y += dy; d.ran += dy;
+        d.x += (Math.random() - 0.5) * 0.25;
+        wipe(d.x, d.y - d.r, d.r * 3.2, 0.85);
+      } else {
+        d.a -= dt / 2400;
+      }
+    }
+    drops = drops.filter((d) => d.a > 0 && d.y < H / DPR + 10);
+  }
+  function paintDrops() {
+    fctx.save();
+    fctx.scale(DPR, DPR);
+    for (const d of drops) {
+      fctx.globalAlpha = Math.max(0, d.a);
+      fctx.fillStyle = "rgba(255,255,255,.22)";
+      fctx.beginPath(); fctx.arc(d.x, d.y, d.r, 0, 6.283); fctx.fill();
+      fctx.strokeStyle = "rgba(70,60,80,.4)"; fctx.lineWidth = 0.9;
+      fctx.beginPath(); fctx.arc(d.x, d.y, d.r, 0.2, Math.PI - 0.2); fctx.stroke();
+      fctx.fillStyle = "rgba(255,255,255,.9)";
+      fctx.beginPath(); fctx.arc(d.x - d.r * 0.35, d.y - d.r * 0.4, d.r * 0.32, 0, 6.283); fctx.fill();
+    }
+    fctx.restore();
+  }
+
+  let lastT = 0, holdUntil = 0, spillTick = 0;
   function drawFrost(now) {
     // 霜慢慢结回来：大约 9 秒从全清回到全白
     const dt = lastT ? Math.max(0, Math.min(64, now - lastT)) : 16; lastT = now;
     const decay = now < holdUntil ? 0 : dt / 9000;
-    let any = false;
+    if (drops.length) stepDrops(dt);
+    let any = false, sum = 0;
     for (let i = 0; i < grid.length; i++) {
-      if (grid[i] > 0) { grid[i] = Math.max(0, grid[i] - decay); any = true; }
+      if (grid[i] > 0) { grid[i] = Math.max(0, grid[i] - decay); any = true; sum += grid[i]; }
     }
-    if (!any && !dirty) return;
+    // 擦开得越多，窗下洒出去的暖光越亮
+    if (++spillTick % 12 === 0) scene.style.setProperty("--spill", Math.min(1, sum / grid.length * 2.2).toFixed(3));
+    if (!any && !dirty && !drops.length) return;
     dirty = any;
     const d = img.data;
     for (let i = 0; i < grid.length; i++) {
@@ -264,6 +380,7 @@
     fctx.imageSmoothingEnabled = true;
     fctx.drawImage(small, 0, 0, gw, gh, 0, 0, gw * CELL * DPR, gh * CELL * DPR);
     fctx.globalCompositeOperation = "source-over";
+    if (drops.length) paintDrops();
   }
 
   // ---------- 手和鼠标 ----------
@@ -279,7 +396,11 @@
     if (last) {
       const dist = Math.hypot(p.x - last.x, p.y - last.y);
       const steps = Math.max(1, Math.ceil(dist / (radius * 0.3)));
-      for (let s = 1; s <= steps; s++) wipe(last.x + (p.x - last.x) * s / steps, last.y + (p.y - last.y) * s / steps, radius);
+      for (let s = 1; s <= steps; s++) {
+        const x = last.x + (p.x - last.x) * s / steps, y = last.y + (p.y - last.y) * s / steps;
+        wipe(x, y, radius);
+        maybeDrop(x, y, radius);
+      }
       travelled += dist;
     } else {
       wipe(p.x, p.y, radius);
@@ -330,16 +451,17 @@
     target.x = (e.clientX / innerWidth - 0.5) * 2;
     target.y = (e.clientY / innerHeight - 0.5) * 2;
   });
-  const pupils = $("#pupils");
+  const pupils = $("#pupils"), catLayer = LAYERS[4];
+  let lastLook = "";
   function lookAt() {
-    if (!pointer) { pupils.setAttribute("transform", ""); return; }
-    const m = room.getScreenCTM(); if (!m) return;
-    const r = glass.getBoundingClientRect();
-    const pt = room.createSVGPoint(); pt.x = pointer.x + r.left; pt.y = pointer.y + r.top;
-    const s = pt.matrixTransform(m.inverse());
-    const dx = s.x - 922, dy = s.y - 602, d = Math.hypot(dx, dy) || 1;
-    const k = Math.min(3.2, d / 40);
-    pupils.setAttribute("transform", `translate(${(dx / d * k).toFixed(2)} ${(dy / d * k * 0.6).toFixed(2)})`);
+    let tf = "";
+    if (pointer) {
+      const s = fromPx(pointer.x - catLayer.x, pointer.y - catLayer.y);
+      const dx = s.x - 922, dy = s.y - 598, d = Math.hypot(dx, dy) || 1;
+      const k = Math.min(3, d / 40);
+      tf = `translate(${(dx / d * k).toFixed(1)} ${(dy / d * k * 0.5).toFixed(1)})`;
+    }
+    if (tf !== lastLook) { pupils.setAttribute("transform", tf); lastLook = tf; }
   }
 
   // ---------- 屋外的雪 ----------
@@ -371,7 +493,14 @@
   function frame(t) {
     off.x += (target.x - off.x) * 0.06;
     off.y += (target.y - off.y) * 0.06;
-    if (!reduceMotion) L.forEach((g, i) => g.setAttribute("transform", `translate(${(-off.x * DEPTH[i]).toFixed(2)} ${(-off.y * DEPTH[i] * 0.6).toFixed(2)})`));
+    if (!reduceMotion) {
+      for (const l of LAYERS) {
+        const x = -off.x * l.d * vb.k, y = -off.y * l.d * vb.k * 0.6;
+        if (Math.abs(x - l.x) < 0.05 && Math.abs(y - l.y) < 0.05) continue;
+        l.x = x; l.y = y;
+        l.el.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
+      }
+    }
     lookAt();
     drawFrost(t);
     if (!reduceMotion) drawSnow(t);
@@ -429,15 +558,21 @@
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeCard(); tv.hidden = true; } });
 
   // ---------- 启动 ----------
-  function layout() { fitRoom(); buildFrost(); buildSnow(); }
+  function layout() { fitRoom(); placeLight(); buildFrost(); buildSnow(); }
   let rt = 0;
   window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(layout, 150); });
   buildTextList();
+  buildFairyLights();
+  buildCalendar();
+  buildClock();
   layout();
   holdUntil = performance.now() + 3000; // 窗上的「hi ♥」先留三秒
 
-  // ?demo：自动擦一道，给截图和预览用
-  if (/[?&]demo\b/.test(location.search)) {
+  // ?demo=open：整扇窗擦开，给截图看屋里用；?demo：自动擦两道
+  if (/[?&]demo=open\b/.test(location.search)) {
+    grid.fill(1);
+    holdUntil = performance.now() + 600000;
+  } else if (/[?&]demo\b/.test(location.search)) {
     const r = glass.getBoundingClientRect();
     last = null;
     for (let i = 0; i <= 60; i++) {
