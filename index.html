@@ -169,6 +169,22 @@
     <clipPath id="painting"><rect x="212" y="-76" width="110" height="76"/></clipPath>
     <path id="leaf" d="M0 0 C-7 -4 -9 -13 0 -19 C9 -13 7 -4 0 0 Z"/>
     <clipPath id="tvScreen"><rect x="959" y="242" width="50" height="42" rx="7"/></clipPath>
+
+    <!-- 躲猫猫：躲起来以后从东西后面露出来的脑袋（耳朵、头顶、眼睛），跟屋里那只同一套画法 -->
+    <g id="peekHead">
+      <path d="M890 590 C885 574 885 558 889 544 C900 550 908 558 915 568 Z" fill="url(#fur)"/>
+      <path d="M893 582 C890 572 890 562 892 553 C899 558 904 563 909 570 Z" fill="#3e2b37"/>
+      <path d="M954 590 C959 574 959 558 955 544 C944 550 936 558 929 568 Z" fill="#14151e"/>
+      <path d="M951 582 C954 572 954 562 952 553 C945 558 940 563 935 570 Z" fill="#2c2330"/>
+      <path d="M886 600 C884 576 900 562 922 562 C944 562 960 576 958 600 C957 618 942 630 922 630 C902 630 887 618 886 600 Z" fill="url(#fur)"/>
+      <path d="M922 562 C900 562 884 576 886 600" fill="none" stroke="url(#rim)" stroke-width="2.2" stroke-linecap="round"/>
+      <ellipse cx="908" cy="598" rx="7" ry="7.6" fill="url(#iris)"/>
+      <ellipse cx="936" cy="598" rx="7" ry="7.6" fill="url(#iris)"/>
+      <ellipse cx="908" cy="598" rx="2.4" ry="6.2" fill="#0d0c14"/>
+      <ellipse cx="936" cy="598" rx="2.4" ry="6.2" fill="#0d0c14"/>
+      <circle cx="905.6" cy="594.6" r="1.7" fill="#fff"/>
+      <circle cx="933.6" cy="594.6" r="1.7" fill="#fff"/>
+    </g>
   </defs>
 </svg>
 
@@ -366,6 +382,17 @@
             <rect x="698" y="300" width="344" height="14" fill="url(#wood)"/>
             <rect x="698" y="300" width="344" height="14" fill="url(#plank)"/>
           </g>
+          <!-- 躲猫猫：书后面露出耳朵和眼睛（先画它，书画在后面，正好挡住下半截） -->
+          <g class="peek" data-spot="books">
+            <g class="peek-head"><use href="#peekHead" transform="translate(757 205) scale(.42) translate(-922 -600)"/></g>
+          </g>
+          <!-- 躲猫猫：趴在小电视后面，尾巴从书架边上垂下来 -->
+          <g class="peek" data-spot="tv">
+            <g class="peek-dangle">
+              <path d="M992 296 C994 318 988 334 994 348 C997 355 1004 356 1006 350" fill="none" stroke="#14151e" stroke-width="9" stroke-linecap="round"/>
+              <path d="M991 304 C992 320 987 334 992 346" fill="none" stroke="#ffc184" stroke-opacity=".35" stroke-width="1.4" stroke-linecap="round"/>
+            </g>
+          </g>
           <g filter="url(#softShadow)">
             <rect x="716" y="196" width="24" height="104" fill="#c98f7a"/>
             <rect x="742" y="210" width="30" height="90" fill="#8fa9c4"/>
@@ -483,6 +510,18 @@
           <ellipse cx="427" cy="668" rx="17" ry="4.5" fill="#eef4f9"/>
           <ellipse cx="427" cy="669" rx="14" ry="3.2" fill="#7a4b38"/>
           <path d="M417 684 c3 -4 6 -4 9 0 c3 -4 6 -4 9 0 c0 5 -9 9 -9 9 c0 0 -9 -4 -9 -9 z" fill="#e7a3b4" opacity=".85"/>
+        </g>
+
+        <!-- 躲猫猫：蹲在游戏机后面，探出半个脑袋 -->
+        <g class="peek" data-spot="console">
+          <g class="peek-head"><use href="#peekHead" transform="translate(520 596) scale(.6) translate(-922 -600)"/></g>
+        </g>
+        <!-- 躲猫猫：趴在笔记本后面，只有尾巴竖起来 -->
+        <g class="peek" data-spot="notebook">
+          <g class="peek-tail">
+            <path d="M806 716 C812 690 800 668 808 650 C812 641 822 640 824 648" fill="none" stroke="#14151e" stroke-width="10" stroke-linecap="round"/>
+            <path d="M803 700 C806 684 799 668 806 654" fill="none" stroke="#ffc184" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
         </g>
 
         <!-- 游戏机（贪吃蛇） -->

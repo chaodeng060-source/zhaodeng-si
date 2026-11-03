@@ -425,8 +425,8 @@
     const p = local(e);
     pointer = p;
     if (e.pointerType === "mouse" || down) strokeTo(p, e.pointerType === "mouse" ? 40 : 46);
-    // 擦开的地方，东西会亮一下，提示能点
-    const it = down ? null : itemAt(e);
+    // 擦开的地方，东西会亮一下，提示能点（躲猫猫的时候不亮，免得给出答案）
+    const it = down || game ? null : itemAt(e);
     const ok = it && cleared(p.x, p.y) > 0.35 ? it : null;
     if (ok !== hovered) {
       if (hovered) hovered.classList.remove("lit");
@@ -441,8 +441,11 @@
     down = false; downAt = null;
     if (e.pointerType !== "mouse") last = null;
     if (!tap) return;
+    if (game) return guess(p);
     const it = itemAt(e);
-    if (it && cleared(p.x, p.y) > 0.35) open(it.dataset.item);
+    if (!it || cleared(p.x, p.y) <= 0.35) return;
+    if (it.dataset.item === "cat") hide();
+    else open(it.dataset.item);
   });
   glass.addEventListener("pointerleave", () => { last = null; pointer = null; });
   glass.addEventListener("pointercancel", () => { down = false; last = null; });
@@ -464,6 +467,97 @@
       tf = `translate(${(dx / d * k).toFixed(1)} ${(dy / d * k * 0.5).toFixed(1)})`;
     }
     if (tf !== lastLook) { pupils.setAttribute("transform", tf); lastLook = tf; }
+  }
+
+  // ---------- 躲猫猫：点小黑猫，它跑去躲起来，听着铃铛把它找出来 ----------
+  // 跟正经游戏反过来：那边是人藏、AI 听铃铛找；这里是猫藏、来看的人找。
+  const SPOTS = {           // 屋里的坐标、在哪一层（LAYERS 里的下标）、点多近算找到
+    books: { layer: 1, x: 757, y: 198, r: 48 },
+    tv: { layer: 1, x: 997, y: 326, r: 46 },
+    console: { layer: 3, x: 520, y: 584, r: 56 },
+    notebook: { layer: 3, x: 812, y: 664, r: 50 },
+  };
+  let game = null, lastSpot = "";
+  let actx = null;
+
+  // 铃铛是现合成的三声叮，左右声道跟着猫躲的方向走
+  function bell(spot, loud) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      const t0 = actx.currentTime + 0.02;
+      const out = actx.createStereoPanner ? actx.createStereoPanner() : actx.createGain();
+      if (out.pan) out.pan.value = Math.max(-0.9, Math.min(0.9, (spot.x - 600) / 420));
+      out.connect(actx.destination);
+      const notes = loud ? [[2637, 0], [3136, 0.08], [3520, 0.16], [4186, 0.26]] : [[2637, 0], [3520, 0.07], [2637, 0.17]];
+      for (const [f, dt] of notes) {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = "triangle"; o.frequency.value = f * (1 + (Math.random() - 0.5) * 0.012);
+        g.gain.setValueAtTime(0, t0 + dt);
+        g.gain.linearRampToValueAtTime(loud ? 0.09 : 0.05, t0 + dt + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.55);
+        o.connect(g).connect(out);
+        o.start(t0 + dt); o.stop(t0 + dt + 0.6);
+      }
+    } catch (_) { /* 没有声音也能玩：霜上那一圈就是铃铛 */ }
+  }
+
+  // 猫在屋里的位置 → 此刻窗玻璃上的像素（算上那一层的视差）
+  function spotPx(spot) {
+    const p = toPx(spot.x, spot.y), l = LAYERS[spot.layer];
+    return { x: p.x + l.x, y: p.y + l.y };
+  }
+
+  // 铃铛一响，霜上荡开一圈「叮」，大概在那个方向，不会正好圈住它
+  function ring() {
+    if (!game) return;
+    const spot = SPOTS[game.key], p = spotPx(spot), r = glass.getBoundingClientRect();
+    const spread = game.restless ? 22 : 60;
+    const x = Math.max(36, Math.min(r.width - 36, p.x + (Math.random() - 0.5) * 2 * spread));
+    const y = Math.max(36, Math.min(r.height - 36, p.y + (Math.random() - 0.5) * 2 * spread));
+    const d = el("div", "ding", "叮"); d.style.left = `${x}px`; d.style.top = `${y}px`;
+    glass.appendChild(d); setTimeout(() => d.remove(), 1800);
+    if (!game.quiet) bell(spot, false);
+  }
+
+  function hide(key, quiet) {
+    const keys = Object.keys(SPOTS).filter((k) => k !== lastSpot);
+    key = SPOTS[key] ? key : keys[Math.floor(Math.random() * keys.length)];
+    lastSpot = key;
+    const cat = $("#cat");
+    cat.classList.remove("pop"); cat.classList.add("duck", "gone");
+    if (hovered) { hovered.classList.remove("lit"); hovered = null; }
+    const peek = document.querySelector(`.peek[data-spot="${key}"]`);
+    game = { key, peek, tries: 0, restless: false, quiet: !!quiet, timers: [] };
+    game.timers.push(setTimeout(() => peek.classList.add("on"), 450));
+    game.timers.push(setTimeout(ring, 1100));
+    game.timers.push(setInterval(ring, 3400));
+    game.timers.push(setTimeout(() => { if (game) { game.restless = true; peek.classList.add("restless"); } }, 15000));
+    setHint("它躲起来了。听铃铛，擦开窗，把它找出来");
+  }
+
+  function found() {
+    const { peek, tries, timers } = game;
+    timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
+    if (!game.quiet) bell(SPOTS[game.key], true);
+    game = null;
+    peek.classList.remove("on", "restless");
+    const cat = $("#cat");
+    cat.classList.remove("gone", "duck"); cat.classList.add("pop");
+    setTimeout(() => cat.classList.remove("pop"), 700);
+    setHint(tries ? `找到了！找了 ${tries + 1} 下` : "一下就找到了！");
+    setTimeout(() => open("cat", "刚才那一下，就是这个游戏的缩小版，只是反过来了：在正经游戏里，躲的是你，找的是 AI。"), 750);
+  }
+
+  // 躲着的时候，点哪儿都算猜一次；擦开了、点得够近才算找到
+  function guess(p) {
+    const spot = SPOTS[game.key], at = spotPx(spot);
+    const k = vb.k, near = Math.hypot(p.x - at.x, p.y - at.y) < spot.r * k + 14;
+    if (near && cleared(p.x, p.y) > 0.25) return found();
+    game.tries++;
+    if (near) setHint("就在这儿附近……再擦开一点看看");
+    else if (game.tries % 3 === 0) { setHint("不在那儿。铃铛是从哪边响的？"); ring(); }
+    else setHint("不在这儿");
   }
 
   // ---------- 屋外的雪 ----------
@@ -512,14 +606,12 @@
   // ---------- 卡片 ----------
   const layer = $("#cardLayer");
   function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-  function open(key) {
+  function open(key, lead) {
     const it = ITEMS[key]; if (!it) return;
-    if (key === "cat") { // 小黑猫先缩一下，再弹卡片
-      const cat = $("#cat"); cat.classList.add("duck"); setTimeout(() => cat.classList.remove("duck"), 900);
-    }
-    $("#cardKicker").textContent = it.kicker || "";
+    $("#cardKicker").textContent = (lead ? "找到了 · " : "") + (it.kicker || "");
     $("#cardTitle").textContent = it.title;
     const body = $("#cardBody"); body.replaceChildren();
+    if (lead) body.appendChild(el("p", "lead", lead));
     if (it.cover) {
       const a = el("a", "cover"); a.href = (it.links || [[, "#"]])[0][1]; a.target = "_blank"; a.rel = "noopener";
       const im = el("img"); im.src = it.cover[0]; im.alt = it.cover[1]; im.loading = "lazy";
@@ -575,10 +667,12 @@
   layout();
   holdUntil = performance.now() + 3000; // 窗上的「hi ♥」先留三秒
 
-  // ?demo=open：整扇窗擦开，给截图看屋里用；?demo：自动擦两道
-  if (/[?&]demo=open\b/.test(location.search)) {
+  // ?demo=open：整扇窗擦开，给截图看屋里用；?demo=hide&spot=books：擦开后让猫躲到那儿（不出声）；?demo：自动擦两道
+  const demoHide = location.search.match(/[?&]demo=hide(?:&spot=(\w+))?/);
+  if (/[?&]demo=open\b/.test(location.search) || demoHide) {
     grid.fill(1);
     holdUntil = performance.now() + 600000;
+    if (demoHide) hide(demoHide[1], true);
   } else if (/[?&]demo\b/.test(location.search)) {
     const r = glass.getBoundingClientRect();
     last = null;

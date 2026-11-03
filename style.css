@@ -123,6 +123,28 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .cat .ear-r { transform-box: fill-box; transform-origin: 20% 90%; animation: ear 7.5s ease-in-out infinite; }
 @keyframes ear { 0%, 88%, 100% { transform: rotate(0); } 90% { transform: rotate(12deg); } 92% { transform: rotate(-3deg); } 94% { transform: rotate(0); } }
 
+/* 躲猫猫：屋里那只躲起来，换成东西后面露出的耳朵或尾巴；铃铛在霜上荡开一圈 */
+.cat { transition: opacity .3s ease; }
+.cat.gone { opacity: 0; pointer-events: none; transition-delay: .25s; }
+.cat.pop #catBody { animation: pop .6s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes pop { 0% { transform: translateY(34px) scaleY(.45); } 100% { transform: none; } }
+.peek { opacity: 0; transition: opacity .5s ease; }
+.peek.on { opacity: 1; }
+.peek-tail, .peek-dangle { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 2.8s ease-in-out infinite; }
+.peek-dangle { transform-origin: 50% 0%; }
+.peek.restless .peek-tail, .peek.restless .peek-dangle { animation-duration: 1.1s; }
+@keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(6deg); } }
+.peek.restless .peek-head { animation: bob 1.3s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.ding {
+  position: absolute; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid rgba(255, 206, 140, .85); box-shadow: 0 0 14px rgba(255, 206, 140, .55), inset 0 0 10px rgba(255, 206, 140, .4);
+  font-family: var(--hand); font-size: 16px; color: #b0715a;
+  animation: ding 1.7s ease-out forwards;
+}
+@keyframes ding { 0% { opacity: 0; transform: scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: scale(2); } }
+
 #frost { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .sheen {
   position: absolute; inset: 0; pointer-events: none;
@@ -193,6 +215,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .card h2 { font-family: var(--serif); font-size: 28px; margin: 6px 0 12px; }
 .card .body { font-family: var(--serif); font-size: 15px; line-height: 1.95; color: #44506a; }
 .card .body p { margin: 0 0 10px; }
+.card .body p.lead { font-family: var(--hand); font-size: 16px; color: #b0715a; padding-bottom: 10px; border-bottom: 1px dashed #ecd9c8; }
 .card .cover { position: relative; display: block; width: min(190px, 58%); margin: 4px auto 16px; border-radius: 4px; overflow: hidden; box-shadow: 0 10px 24px rgba(30, 30, 60, .3); }
 .card .cover img { display: block; width: 100%; image-rendering: pixelated; }
 .card .cover span {
@@ -237,6 +260,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .hint { font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lantern i, .fairy-glow, .tv-glow, .steam path, .cat .eyes, .cat .tail-tip, .cat .ear-r { animation: none; }
+  .lantern i, .fairy-glow, .tv-glow, .steam path, .cat .eyes, .cat .tail-tip, .cat .ear-r,
+  .peek-tail, .peek-dangle, .peek.restless .peek-head, .cat.pop #catBody { animation: none; }
+  .ding { animation: dingStill 1.7s ease-out forwards; }
+  @keyframes dingStill { 0%, 100% { opacity: 0; } 20%, 60% { opacity: 1; } }
   .steam path { opacity: .3; }
 }
