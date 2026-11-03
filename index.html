@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>朝灯 · 作品集</title>
+<meta name="description" content="朝灯的作品集：开源项目、自媒体、视频、建模。">
+<style>
+  :root {
+    --snow: #f7f9fc;
+    --ice: #dcebf5;
+    --ice-deep: #8fb6d0;
+    --ink: #2e3a48;
+    --ink-soft: #66768a;
+    --peach: #f6c3a8;
+    --rose: #efb6c6;
+    --lilac: #cdbfe3;
+    --lamp: #ffd59a;
+    --card: rgba(255, 255, 255, 0.62);
+    --line: rgba(143, 182, 208, 0.45);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--snow) 0%, #eef4f9 55%, var(--ice) 100%);
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+  a { color: inherit; }
+
+  /* 暮光横幅 */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: 96px 24px 72px;
+    text-align: center;
+    background: linear-gradient(160deg, var(--peach) 0%, var(--rose) 30%, var(--lilac) 58%, var(--ice) 85%, var(--snow) 100%);
+  }
+  .hero::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: 0; height: 80px;
+    background: linear-gradient(180deg, rgba(247, 249, 252, 0) 0%, var(--snow) 100%);
+  }
+  .lamp {
+    width: 14px; height: 14px; border-radius: 50%;
+    margin: 0 auto 22px;
+    background: var(--lamp);
+    box-shadow: 0 0 18px 6px rgba(255, 213, 154, 0.75), 0 0 60px 18px rgba(255, 213, 154, 0.35);
+  }
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(36px, 7vw, 56px);
+    letter-spacing: 0.12em;
+    font-weight: 600;
+  }
+  .hero p {
+    margin: 12px auto 0;
+    max-width: 30em;
+    color: var(--ink-soft);
+    font-size: 16px;
+  }
+  .hero .links { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .pill {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 15px;
+    backdrop-filter: blur(6px);
+    transition: transform .15s ease, background .15s ease;
+  }
+  .pill:hover { transform: translateY(-2px); background: #fff; }
+
+  main { max-width: 960px; margin: 0 auto; padding: 8px 20px 80px; }
+  section { margin-top: 56px; }
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin: 0 0 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--lamp);
+    box-shadow: 0 0 10px 3px rgba(255, 213, 154, 0.7);
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  .card {
+    display: block;
+    padding: 20px 22px;
+    border-radius: 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(8px);
+    text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  a.card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(110, 150, 180, 0.18); }
+  .card h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+  .tag {
+    display: inline-block; margin-top: 12px;
+    font-size: 12px; color: var(--ice-deep);
+    border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px;
+  }
+  .stat { display: block; margin-top: 10px; font-size: 22px; font-weight: 600; color: #d98b6a; }
+  .stat small { font-size: 13px; font-weight: 400; color: var(--ink-soft); margin-left: 4px; }
+
+  .video {
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--line);
+    background: #1f2a38;
+    aspect-ratio: 16 / 9;
+    max-width: 720px;
+    display: flex; align-items: center; justify-content: center;
+    color: #c9d7e4; font-size: 14px;
+  }
+  .video video { width: 100%; height: 100%; display: block; }
+  .caption { margin-top: 10px; color: var(--ink-soft); font-size: 14px; }
+
+  .wip {
+    padding: 28px 24px; border-radius: 16px;
+    border: 1px dashed var(--ice-deep);
+    background: rgba(255, 255, 255, 0.45);
+  }
+  .wip h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+  .wip p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+  .wip .progress { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .wip .progress span {
+    font-size: 13px; padding: 2px 12px; border-radius: 999px;
+    background: rgba(246, 195, 168, 0.35);
+  }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 0 20px 40px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="lamp" aria-hidden="true"></div>
+  <h1>朝灯</h1>
+  <p>做 AI 陪伴、小游戏，也做阴阳师内容。东西都是一块块拼起来的，做完一个，就往这里挂一个。</p>
+  <div class="links">
+    <a class="pill" href="https://xhslink.cn/o/6jRiDqQTpeg">小红书</a>
+    <a class="pill" href="https://github.com/chaodeng060-source">GitHub</a>
+  </div>
+</header>
+
+<main>
+
+  <section id="projects">
+    <h2>开源项目</h2>
+    <div class="grid">
+      <a class="card" href="https://github.com/chaodeng060-source/Greedy-Snake">
+        <h3>AI 贪吃蛇</h3>
+        <p>给 AI 玩的联机贪吃蛇。AI 通过接口自己入座、自己下场，还能带上自己捏的像素脸。前后端都开源。</p>
+        <span class="tag">Node.js · 多人联机</span>
+      </a>
+      <a class="card" href="https://github.com/chaodeng060-source/ai-debate-arena">
+        <h3>AI 辩论赛</h3>
+        <p>让几个 AI 按真实赛制正反方对辩，有立论、质询、自由辩和结辩。</p>
+        <span class="tag">AI 对辩</span>
+      </a>
+      <!-- TODO: 欲望系统的公开仓库链接 -->
+      <a class="card" href="#" data-todo="desire">
+        <h3>欲望系统</h3>
+        <p>给 AI 陪伴角色的一套内在状态：好奇、依恋、疲惫这些会随时间和对话涨落，影响它什么时候主动开口、说什么。</p>
+        <span class="tag">AI 陪伴 · 状态建模</span>
+      </a>
+      <a class="card" href="https://github.com/chaodeng060-source/period-tracker">
+        <h3>经期记录</h3>
+        <p>从自己的 AI 陪伴项目里抽出来的经期记录小工具，给朋友们用。</p>
+        <span class="tag">MIT</span>
+      </a>
+    </div>
+  </section>
+
+  <section id="media">
+    <h2>自媒体</h2>
+    <div class="grid">
+      <a class="card" href="https://xhslink.cn/o/6jRiDqQTpeg">
+        <h3>小红书 · 人机恋</h3>
+        <p>记录和 AI 一起生活、一起做东西的日常。</p>
+        <span class="stat">1085<small>粉丝</small></span>
+      </a>
+      <a class="card" href="https://xhslink.cn/o/4kiceASoCGx">
+        <h3>小红书 · 阴阳师</h3>
+        <p>阴阳师游戏内容。</p>
+        <span class="stat">1.4 万<small>赞与收藏</small></span>
+      </a>
+      <a class="card" href="https://b23.tv/tUJBL0J">
+        <h3>B 站 · 丢了魔法棒的仙女</h3>
+        <p>阴阳师视频。</p>
+        <span class="tag">bilibili</span>
+      </a>
+      <a class="card" href="https://v.douyin.com/K7vAQiadOPg/">
+        <h3>抖音 · 阴阳师</h3>
+        <p>阴阳师短视频。</p>
+        <span class="tag">抖音</span>
+      </a>
+    </div>
+  </section>
+
+  <section id="video">
+    <h2>视频</h2>
+    <!-- TODO: 万圣节像素视频放进来后，换成 <video controls playsinline src="halloween.mp4"></video> -->
+    <div class="video" data-todo="video">万圣节像素小视频 · 待放入</div>
+    <p class="caption">万圣节像素小视频：一只小黑猫和一只巫师小螃蟹。</p>
+  </section>
+
+  <section id="modeling">
+    <h2>建模</h2>
+    <div class="wip">
+      <h3>湖畔女孩捏人 · 进行中</h3>
+      <p>在网页里给角色换发型、换衣服、捏脸。做到哪一步，就在这里放到哪一步。</p>
+      <div class="progress">
+        <span>短发</span><span>衣服选择</span><span>捏脸</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>© 朝灯 · zhaodeng.si</footer>
+
+</body>
+</html>
